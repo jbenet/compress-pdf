@@ -7,7 +7,7 @@ It simplifies your pdf compression experience. It supports pipelines! \o/ (using
 ## Install
 
 ```
-git clone github.com/jbenet/compress-pdf
+git clone git@github.com/jbenet/compress-pdf
 cd compress-pdf
 ./install.sh
 ```
