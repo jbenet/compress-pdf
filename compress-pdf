@@ -4,61 +4,51 @@ USAGE="Usage: compress-pdf [<in-pdf>] [<out-pdf>]
 Compress PDF files using gs and compress."
 
 usage() {
-  echo "$USAGE"
-  exit 0
+	echo "$USAGE"
+	exit 0
 }
 
 die() {
-  echo >&2 "error: $@"
-  exit 1
+	echo >&2 "error: $@"
+	exit 1
 }
 
 # help option
 case "$1" in
--h|--h|--help) usage ;;
+	-h|--h|--help) usage ;;
 esac
 
 # check for dependencies
 type gs &>/dev/null || die "dependency not found: gs
 It is contained in the package: ghostscript
 One of these may work for you:
-    brew install ghostscript
-    sudo apt-get install ghostscript"
+brew install ghostscript
+sudo apt-get install ghostscript"
 
 # arguments
-stream=0
 infile=$1
 outfile=$2
 
 # are we streaming? if so use temp files.
 if [ $# -eq 0 ]; then
-  date=$(date +"%Y-%m-%dT%H:%M:%SZ")
-  infile=$(mktemp "/tmp/compress-pdf.in.$date.XXXXXX.pdf")
-  outfile=$(mktemp "/tmp/compress-pdf.out.$date.XXXXXX.pdf")
-  stream=1
-
-  echo >&2 "Awaiting pdf from stdin (stream mode)..."
-  echo >&2 "If you meant to compress a file, use: $0 <file>"
-  cat - >"$infile"
+	echo >&2 "Awaiting pdf from stdin (stream mode)..."
+	echo >&2 "If you meant to compress a file, use: $0 <file>"
+	read infile
+	outfile=$(echo "$infile" | sed 's/\(.*\.\)\([^.]*\)/\1compressed.\2/')
 fi
 
 # only one filename provided, default output filename.
 if [ $# -eq 1 ]; then
-  outfile=$(echo "$infile" | sed 's/\(.*\.\)\([^.]*\)/\1compressed.\2/')
+	outfile=$(echo "$infile" | sed 's/\(.*\.\)\([^.]*\)/\1compressed.\2/')
 fi
 
 # if file does not exist, show usage.
 if [ ! -f "$infile" ]; then
-  die "'$infile' does not exist or is not a pdf file"
+	die "'$infile' does not exist or is not a pdf file"
 fi
 
 # actually do the compression now \o/
 echo >&2 "compressing $infile to $outfile..."
 gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$outfile" "$infile" >/dev/null
 
-# if streaming, output the outfile, then remove the tmp files
-if [ $stream -eq 1 ]; then
-  cat "$outfile"
-  rm "$infile"
-  rm "$outfile"
-fi
+echo >&2 "compress finished"
