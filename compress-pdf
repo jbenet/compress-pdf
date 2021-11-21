@@ -26,15 +26,11 @@ brew install ghostscript
 sudo apt-get install ghostscript"
 
 # arguments
-stream=0
 infile=$1
 outfile=$2
 
 # are we streaming? if so use temp files.
 if [ $# -eq 0 ]; then
-	date=$(date +"%Y-%m-%dT%H:%M:%SZ")
-	stream=1
-
 	echo >&2 "Awaiting pdf from stdin (stream mode)..."
 	echo >&2 "If you meant to compress a file, use: $0 <file>"
 	read infile
